@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Academic Weapon Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-image: url('https://www.calculators.org/graphics/math-sketches.jpg'); 
+            background-color: #f0f0f0; 
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 3px;
+        }
+    </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>What is needed to pass your exam</h2>
+        <form id="Form">
+            <label for="numAssignments">Number of Assignments:</label>
+            <select id="numAssignments" name="numAssignments" onchange="AssignmentInputs()">
+                <option value="0">Select number of assignments</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+
+            <div id="assignmentInputs"></div>
+
+            <label for="assignmentWeight">Assignments Weight (%):</label>
+            <input type="number" id="assignmentWeight" name="assignmentWeight" min="0" max="100" required>
+
+            <label for="examTotal">Exam Total Marks:</label>
+            <input type="number" id="examTotal" name="examTotal" min="0" required>
+
+            <button type="button" onclick="calculate()">Calculate</button>
+        </form>
+
+        <div class="result" id="resultContainer" style="display:none;">
+            <h3>Result</h3>
+            <p>You need <span id="ExamMark"></span> in your exam to get 50% overall.</p>
+        </div>
+    </div>
+
+    <script>
+        function AssignmentInputs() {
+            var numAssignments = document.getElementById('numAssignments').value;
+            var assignmentInputs = document.getElementById('assignmentInputs');
+            assignmentInputs.innerHTML = '';
+
+            for (var i = 1; i <= numAssignments; i++) {
+                var assignmentDiv = document.createElement('div');
+                assignmentDiv.innerHTML = `
+                    <h4>Assignments ${i}</h4>
+                    <label for="assignmentScore${i}">Score:</label>
+                    <input type="number" id="assignmentScore${i}" name="assignmentScore${i}" min="0" required>
+                    
+                    <label for="assignmentTotal${i}">Total Marks:</label>
+                    <input type="number" id="assignmentTotal${i}" name="assignmentTotal${i}" min="0" required>
+                `;
+                assignmentInputs.appendChild(assignmentDiv);
+            }
+        }
+
+        function calculate() {
+            var numAssignments = document.getElementById('numAssignments').value;
+            var assignmentWeight = parseFloat(document.getElementById('assignmentWeight').value);
+            var examTotal = parseFloat(document.getElementById('examTotal').value);
+
+            var totalAssignmentScore = 0;
+            var totalAssignmentMarks = 0;
+
+            for (var i = 1; i <= numAssignments; i++) {
+                var score = parseFloat(document.getElementById(`assignmentScore${i}`).value);
+                var total = parseFloat(document.getElementById(`assignmentTotal${i}`).value);
+
+                totalAssignmentScore += score;
+                totalAssignmentMarks += total;
+            }
+
+            var averageAssignmentScore = (totalAssignmentScore / totalAssignmentMarks) * 100;
+            var weightedAssignmentScore = (averageAssignmentScore * assignmentWeight) / 100;
+
+            var examWeight = 100 - assignmentWeight;
+            var requiredExamScore = (50 - weightedAssignmentScore) / (examWeight / 100);
+
+            document.getElementById('ExamMark').textContent = requiredExamScore.toFixed(2);
+            document.getElementById('resultContainer').style.display = 'block';
+
+           
+            fireWorks();
+        }
+
+        function fireWorks() {
+            var duration = 2 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+              return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+              var timeLeft = animationEnd - Date.now();
+
+              if (timeLeft <= 0) {
+                return clearInterval(interval);
+              }
+
+              var particleCount = 50 * (timeLeft / duration);
+              
+              confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+              confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            }, 250);
+        }
+    </script>
+</body>
+</html>
